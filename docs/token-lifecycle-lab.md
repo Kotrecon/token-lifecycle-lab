@@ -72,21 +72,32 @@ JWT может локально сообщить, кем и когда он бы
 ```mermaid
 stateDiagram-v2
     [*] --> Issued: 1. Выпуск
+
     Issued --> Delivered: 2. Доставка
     Delivered --> Stored: 3. Хранение
-    Stored --> Transmitted: 4. Передача
-    Transmitted --> Validated: 5. Проверка
+
+    Stored --> Transmitted: 4. Передача в API
+    Transmitted --> Validated: 5. Проверка API
     Validated --> Used: Успешный вызов API
+
     Used --> Stored: Следующий вызов с тем же token
 
     Stored --> Refreshed: 6. Refresh / rotation
     Refreshed --> Stored: Новый token сохранён
 
+    Issued --> Expired: TTL истёк до доставки
+    Delivered --> Expired: TTL истёк до хранения
     Stored --> Expired: 7. Достигнут exp
+    Transmitted --> Expired: Token истёк во время запроса
     Validated --> Expired: Token уже истёк
+    Used --> Expired: TTL истёк после использования
+    Refreshed --> Expired: Новый token истёк
 
     Issued --> Revoked: 8. Отзыв
+    Delivered --> Revoked: Logout / incident
     Stored --> Revoked: Logout / incident / disable account
+    Transmitted --> Revoked: Token отозван во время запроса
+    Validated --> Revoked: API обнаружил revoke status
     Used --> Revoked: Отзыв token или session family
     Refreshed --> Revoked: Reuse старого refresh token
 

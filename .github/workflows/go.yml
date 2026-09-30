@@ -2,9 +2,10 @@ name: Go
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop", "release/**" ]
+
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   build:
@@ -18,6 +19,12 @@ jobs:
         with:
           go-version: "1.27"
           cache: false
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        run: go vet ./...
 
       - name: Build
         run: go build -v ./...

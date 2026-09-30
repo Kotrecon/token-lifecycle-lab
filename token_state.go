@@ -2,6 +2,19 @@ package main
 
 type TokenState string
 
+const (
+	Issued      TokenState = "Issued"
+	Delivered   TokenState = "Delivered"
+	Stored      TokenState = "Stored"
+	Transmitted TokenState = "Transmitted"
+	Validated   TokenState = "Validated"
+	Used        TokenState = "Used"
+	Rotated     TokenState = "Rotated"
+	Refreshed   TokenState = "Refreshed"
+	Expired     TokenState = "Expired"
+	Revoked     TokenState = "Revoked"
+)
+
 func (state TokenState) Description() string {
 	switch state {
 	case Issued:
@@ -12,10 +25,14 @@ func (state TokenState) Description() string {
 		return "Токен сохранён для последующего использования."
 	case Transmitted:
 		return "Токен передаётся в целевую систему."
+	case Validated:
+		return "API завершил проверку token и определил результат запроса."
 	case Used:
 		return "Токен был успешно использован."
 	case Rotated:
 		return "Токен заменён новым токеном."
+	case Refreshed:
+		return "Authorization server выдал новый token через refresh или rotation flow."
 	case Expired:
 		return "Срок действия токена истёк."
 	case Revoked:
@@ -35,10 +52,14 @@ func (state TokenState) Location() string {
 		return "В хранилище клиента или в server-side session."
 	case Transmitted:
 		return "В запросе, который клиент отправляет в API."
+	case Validated:
+		return "На стороне API после проверки token."
 	case Used:
 		return "API уже обработал запрос с этим token."
 	case Rotated:
 		return "Старый token заменяется новым."
+	case Refreshed:
+		return "Новый token получен клиентом и ожидает сохранения."
 	case Expired:
 		return "Token завершён: срок действия закончился."
 	case Revoked:
@@ -58,10 +79,14 @@ func (state TokenState) ClientUsage() string {
 		return "Да. Token сохранён и готов к отправке в API."
 	case Transmitted:
 		return "Token уже используется в текущем API-запросе."
+	case Validated:
+		return "Запрос находится на стороне API и ожидает результата проверки."
 	case Used:
 		return "Да. Token был успешно использован и может применяться повторно."
 	case Rotated:
 		return "Нет. Старый token заменён новым."
+	case Refreshed:
+		return "Пока нет. Новый token нужно сохранить перед следующим API-вызовом."
 	case Expired:
 		return "Нет. Срок действия token истёк."
 	case Revoked:
@@ -81,14 +106,18 @@ func (state TokenState) APIChecks() string {
 		return "API проверит подпись, issuer, audience, exp, nbf и scopes, когда получит token."
 	case Transmitted:
 		return "API проверит подпись, issuer, audience, exp, nbf и scopes."
+	case Validated:
+		return "API проверил подпись, issuer, audience, exp, nbf и scopes."
 	case Used:
 		return "API уже выполнил проверки и принял token."
 	case Rotated:
 		return "API будет принимать новый token, а старый отклонит."
+	case Refreshed:
+		return "Новый token будет проверен API при первом использовании."
 	case Expired:
-		return "API отклонит token: срок действия истёк."
+		return "API отклонит token: срок действия token истёк."
 	case Revoked:
-		return "API сможет отклонить token, если проверяет его revoke status у issuer или в deny-list."
+		return "API сможет отклонить token, если проверяет revoke status у issuer или в deny-list."
 	default:
 		return "Неизвестно."
 	}
@@ -97,17 +126,21 @@ func (state TokenState) APIChecks() string {
 func (state TokenState) NextEvents() string {
 	switch state {
 	case Issued:
-		return "Доставка token клиенту."
+		return "Доставка token клиенту, expiry или revoke."
 	case Delivered:
-		return "Сохранение token клиентом или сервером."
+		return "Сохранение token, expiry или revoke."
 	case Stored:
-		return "Отправка token в API, ожидание expiry, rotation или revoke."
+		return "Отправка token в API, refresh / rotation, expiry или revoke."
 	case Transmitted:
-		return "Завершение текущего API-запроса: успех, 401 или 403."
+		return "Проверка token API."
+	case Validated:
+		return "Успешное выполнение API-запроса или отклонение token."
 	case Used:
-		return "Повторное использование, rotation, expiry или revoke."
+		return "Повторное использование, refresh / rotation, expiry или revoke."
 	case Rotated:
 		return "Сохранение нового token, затем его использование."
+	case Refreshed:
+		return "Сохранение нового token для следующего API-вызова."
 	case Expired:
 		return "Никаких. Token завершён."
 	case Revoked:

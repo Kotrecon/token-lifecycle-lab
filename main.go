@@ -6,59 +6,59 @@ import (
 	"os"
 )
 
-const (
-	Issued      TokenState = "Issued"
-	Delivered   TokenState = "Delivered"
-	Stored      TokenState = "Stored"
-	Transmitted TokenState = "Transmitted"
-	Used        TokenState = "Used"
-	Rotated     TokenState = "Rotated"
-	Expired     TokenState = "Expired"
-	Revoked     TokenState = "Revoked"
-)
-
-var lifecycleStages = []TokenState{
-	Issued,
-	Delivered,
-	Stored,
-	Transmitted,
-	Used,
-	Rotated,
-	Expired,
-}
-
 func main() {
-	token := Token{
-		ID:    "demo-token-001",
-		State: lifecycleStages[0],
-	}
-
-	var reader = bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println(colorize("=== Welcome to Token Lifecycle Lab ===", colorCyan))
 	fmt.Println()
 
-	printTokenCard(token, 1, len(lifecycleStages))
-
-	for index := 1; index < len(lifecycleStages); index++ {
-		fmt.Println()
-		fmt.Println(colorize("Press Enter to continue...", colorYellow))
-
-		_, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println(colorize("Input error: "+err.Error(), colorRed))
-			return
+	for {
+		token := Token{
+			ID:    "demo-token-001",
+			State: Issued,
 		}
 
-		token.State = lifecycleStages[index]
+		for {
+			printTokenCard(token)
 
-		fmt.Println()
-		printTokenCard(token, index+1, len(lifecycleStages))
+			actions := AvailableActions(token.State)
+			if len(actions) == 0 {
+				fmt.Println(colorize("Token reached a terminal state.", colorCyan))
+				break
+			}
+
+			printActionsMenu(actions)
+
+			action, err := readActionChoice(reader, actions)
+			if err != nil {
+				fmt.Println(colorize(err.Error(), colorRed))
+				continue
+			}
+
+			err = ApplyAction(&token, action)
+			if err != nil {
+				fmt.Println(colorize(err.Error(), colorRed))
+				continue
+			}
+
+			fmt.Println()
+		}
+
+		for {
+			startNewRun, err := readRestartChoice(reader)
+			if err != nil {
+				fmt.Println(colorize(err.Error(), colorRed))
+				continue
+			}
+
+			if !startNewRun {
+				fmt.Println()
+				fmt.Println(colorize("=== Token Lifecycle Lab. The End ===", colorCyan))
+				return
+			}
+
+			fmt.Println()
+			break
+		}
 	}
-
-	fmt.Println()
-	fmt.Println("Lifecycle completed.")
-	fmt.Println("The token expired and can no longer be accepted by the API.")
-
-	fmt.Println(colorize("=== Token Lifecycle Lab. The End ===", colorCyan))
 }

@@ -29,7 +29,7 @@ func main() {
 			runLifecycleLab(reader)
 
 		case ScenarioSimulatorMode:
-			runScenarioSimulator()
+			runScenarioSimulator(reader)
 
 		case ExitMode:
 			fmt.Println(colorize("=== Token Lifecycle Lab. The End ===", colorCyan))

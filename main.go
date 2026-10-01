@@ -9,8 +9,7 @@ import (
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println(colorize("=== Token Lifecycle Lab ===", colorCyan))
-	fmt.Println()
+	printApplicationWelcome()
 
 	for {
 		printMainMenu()
@@ -32,7 +31,7 @@ func main() {
 			runScenarioSimulator(reader)
 
 		case ExitMode:
-			fmt.Println(colorize("=== Token Lifecycle Lab. The End ===", colorCyan))
+			printApplicationEnd()
 			return
 		}
 	}

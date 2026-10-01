@@ -49,6 +49,38 @@ func printTokenCard(token Token) {
 	printKeyValue("Что происходит", token.State.Description())
 }
 
+func printMainMenu() {
+	fmt.Println(colorize("Main menu:", colorCyan))
+	fmt.Println("1. Interactive Lifecycle Lab")
+	fmt.Println("2. Scenario Simulator")
+	fmt.Println("3. Exit")
+}
+
+func readAppMode(reader *bufio.Reader) (AppMode, error) {
+	fmt.Print(colorize("Choose an option: ", colorYellow))
+
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return 0, err
+	}
+
+	choice, err := strconv.Atoi(strings.TrimSpace(input))
+	if err != nil {
+		return 0, fmt.Errorf("enter an option number")
+	}
+
+	switch choice {
+	case int(LifecycleLabMode):
+		return LifecycleLabMode, nil
+	case int(ScenarioSimulatorMode):
+		return ScenarioSimulatorMode, nil
+	case int(ExitMode):
+		return ExitMode, nil
+	default:
+		return 0, fmt.Errorf("choose a number from 1 to 3")
+	}
+}
+
 func printActionsMenu(actions []LifecycleAction) {
 	if len(actions) == 0 {
 		return
@@ -92,7 +124,7 @@ func readRestartChoice(reader *bufio.Reader) (bool, error) {
 	fmt.Println()
 	fmt.Println("What would you like to do?")
 	fmt.Println("1. Start a new demo run")
-	fmt.Println("2. Exit")
+	fmt.Println("2. Back to main menu")
 	fmt.Print(colorize("Choose an option: ", colorYellow))
 
 	input, err := reader.ReadString('\n')
@@ -102,7 +134,9 @@ func readRestartChoice(reader *bufio.Reader) (bool, error) {
 
 	choice, err := strconv.Atoi(strings.TrimSpace(input))
 	if err != nil {
-		return false, fmt.Errorf("enter 1 to start a new demo run or 2 to exit")
+		return false, fmt.Errorf(
+			"enter 1 to start a new demo run or 2 to return to main menu",
+		)
 	}
 
 	switch choice {
@@ -111,6 +145,8 @@ func readRestartChoice(reader *bufio.Reader) (bool, error) {
 	case 2:
 		return false, nil
 	default:
-		return false, fmt.Errorf("choose 1 to start a new demo run or 2 to exit")
+		return false, fmt.Errorf(
+			"choose 1 to start a new demo run or 2 to return to main menu",
+		)
 	}
 }

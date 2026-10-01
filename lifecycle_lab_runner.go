@@ -6,7 +6,7 @@ import (
 )
 
 func runLifecycleLab(reader *bufio.Reader) {
-	fmt.Println(colorize("=== Welcome to Token Lifecycle Lab ===", colorCyan))
+	fmt.Println(colorize("=== Interactive Lifecycle Lab ===", colorCyan))
 	fmt.Println()
 
 	for {
@@ -50,7 +50,9 @@ func runLifecycleLab(reader *bufio.Reader) {
 
 			if !startNewRun {
 				fmt.Println()
-				fmt.Println(colorize("=== Token Lifecycle Lab. The End ===", colorCyan))
+				fmt.Println(
+					colorize("=== Leaving Interactive Lifecycle Lab ===", colorCyan),
+				)
 				return
 			}
 

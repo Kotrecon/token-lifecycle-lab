@@ -8,15 +8,21 @@ import (
 )
 
 const (
-	colorReset  = "\033[0m"
-	colorCyan   = "\033[36m"
-	colorYellow = "\033[33m"
-	colorOrange = "\033[38;5;208m"
-	colorRed    = "\033[31m"
+	colorReset      = "\033[0m"
+	colorCyan       = "\033[36m"
+	colorBrightCyan = "\033[96m"
+	colorYellow     = "\033[33m"
+	colorOrange     = "\033[38;5;208m"
+	colorRed        = "\033[31m"
+	colorGray       = "\033[90m"
 )
 
 func colorize(text string, color string) string {
 	return color + text + colorReset
+}
+
+func printKeyValue(key string, value string) {
+	fmt.Printf("%s %s\n", colorize(key+":", colorYellow), value)
 }
 
 func printTokenCard(token Token) {
@@ -31,13 +37,16 @@ func printTokenCard(token Token) {
 
 	fmt.Println(colorize("=== Token Card ===", colorCyan))
 
-	fmt.Println("Token ID:", token.ID)
-	fmt.Println("Token state:", colorize(string(token.State), stateColor))
-	fmt.Println("Location:", token.State.Location())
-	fmt.Println("Can client use it now:", token.State.ClientUsage())
-	fmt.Println("What will API check:", token.State.APIChecks())
-	fmt.Println("Next possible event:", token.State.NextEvents())
-	fmt.Println("Что происходит:", token.State.Description())
+	printKeyValue("Token ID", token.ID)
+	printKeyValue(
+		"Token state",
+		colorize(string(token.State), stateColor),
+	)
+	printKeyValue("Location", token.State.Location())
+	printKeyValue("Can client use it now", token.State.ClientUsage())
+	printKeyValue("What will API check", token.State.APIChecks())
+	printKeyValue("Next possible event", token.State.NextEvents())
+	printKeyValue("Что происходит", token.State.Description())
 }
 
 func printActionsMenu(actions []LifecycleAction) {

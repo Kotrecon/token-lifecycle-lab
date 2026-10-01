@@ -92,32 +92,38 @@ func printActionsMenu(actions []LifecycleAction) {
 	for index, action := range actions {
 		fmt.Printf("%d. %s\n", index+1, action.Label())
 	}
+
+	fmt.Println("0. Back to main menu")
 }
 
-func readActionChoice(
+func readActionOrExitChoice(
 	reader *bufio.Reader,
 	actions []LifecycleAction,
-) (LifecycleAction, error) {
+) (LifecycleAction, bool, error) {
 	fmt.Print(colorize("Choose an action: ", colorYellow))
 
 	input, err := reader.ReadString('\n')
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	choice, err := strconv.Atoi(strings.TrimSpace(input))
 	if err != nil {
-		return "", fmt.Errorf("enter an action number")
+		return "", false, fmt.Errorf("enter an action number")
+	}
+
+	if choice == 0 {
+		return "", true, nil
 	}
 
 	if choice < 1 || choice > len(actions) {
-		return "", fmt.Errorf(
-			"choose a number from 1 to %d",
+		return "", false, fmt.Errorf(
+			"choose 0 to return to main menu or a number from 1 to %d",
 			len(actions),
 		)
 	}
 
-	return actions[choice-1], nil
+	return actions[choice-1], false, nil
 }
 
 func readRestartChoice(reader *bufio.Reader) (bool, error) {

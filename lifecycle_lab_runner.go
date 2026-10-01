@@ -26,10 +26,18 @@ func runLifecycleLab(reader *bufio.Reader) {
 
 			printActionsMenu(actions)
 
-			action, err := readActionChoice(reader, actions)
+			action, backToMainMenu, err := readActionOrExitChoice(reader, actions)
 			if err != nil {
 				fmt.Println(colorize(err.Error(), colorRed))
 				continue
+			}
+
+			if backToMainMenu {
+				fmt.Println()
+				fmt.Println(
+					colorize("=== Leaving Interactive Lifecycle Lab ===", colorCyan),
+				)
+				return
 			}
 
 			err = ApplyAction(&token, action)
